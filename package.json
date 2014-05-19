@@ -1,0 +1,21 @@
+{
+  "name": "EventAutomata",
+  "version": "0.0.0",
+  "description": "Event Driven Automata for UI workflows",
+  "main": "index.js",
+  "directories": {
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "jasmine"
+  },
+  "author": "",
+  "license": "BSD",
+  "devDependencies": {
+    "gulp-coffee": "^1.4.1",
+    "gulp-jasmine": "^0.2.0",
+    "gulp-util": "^2.2.14",
+    "gulp": "^3.6.0",
+    "gulp-module-system": "0.0.2"
+  }
+}

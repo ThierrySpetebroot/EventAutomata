@@ -1,0 +1,123 @@
+<html>
+<head>
+	<title>Event Automata</title>
+	<script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+	<script src="./all.js" charset="utf-8"></script>
+	<script src="./semaforo2-model.js" charset="utf-8"></script>
+	<style type="text/css">
+.link {
+  fill: none;
+  stroke: #666;
+  stroke-width: 1.5px;
+}
+
+.node {
+  fill: #ccc;
+  stroke: #333;
+  stroke-width: 1.5px;
+}
+
+.node.active {
+	fill: #333;
+  stroke-width: 3px;
+}
+
+.label {
+  font: 10px sans-serif;
+  pointer-events: none;
+  text-shadow: 0 1px 0 #fff, 1px 0 0 #fff, 0 -1px 0 #fff, -1px 0 0 #fff;
+}
+
+.semaforo div {
+	width: 20px;
+	height: 20px;
+}
+
+.verde {
+	background-color: green;
+}
+
+.giallo {
+	background-color: yellow;
+}
+
+.rosso {
+	background-color: red;
+}
+	</style>
+</head>
+<body>
+<input type='button' id='timeoutTrigger' value='Timeout'></input>
+<input type='button' id='buttonTrigger'  value='Button '></input>
+<div class='semaforo' id='semaforoAuto'>
+	Automobili
+	<div></div>
+</div>
+<div class='semaforo' id='semaforoPedoni'>
+	Pedoni
+	<div></div>
+</div>
+<script type="text/javascript">
+Array.prototype.contains = function(obj) {
+    var i = this.length;
+    while (i--) {
+        if (this[i] === obj) {
+            return true;
+        }
+    }
+    return false;
+}
+
+var ed = new EventDispatcher()
+var au = new Automata(model, ed)
+var ui = new AutomataUI(d3.select('body'), au, {linkDistance: 150, linkStrength: 0.8, charge: -1000})
+
+au.on('transition', function(src, args) {
+	if(args.from != null)
+		ui.getNode(args.from.id).attr('class', 'node');
+	ui.getNode(args.to.id).attr('class', 'node active');
+})
+
+var triggerChangeStatus = function() {
+	ed.trigger("changeStatus");
+	setTimeout(triggerChangeStatus, 2000);
+};
+// setTimeout(triggerChangeStatus, 2000)
+
+d3.select('#timeoutTrigger').on('click', function() {ed.trigger('timeout')})
+d3.select('#buttonTrigger').on('click', function() {ed.trigger('buttonPressed')})
+
+
+var autoVerde  = [0, 5, 6];
+var autoGiallo = [1];
+var pedVerde   = [2];
+var pedGiallo  = [3, 4];
+
+au.on('transition', function(src, args) {
+	nextStateId = args.to.id
+	if(autoVerde.contains(nextStateId)) {
+		d3.select('#semaforoAuto div').attr('class', 'verde')
+		d3.select('#semaforoPedoni div').attr('class', 'rosso')
+		return
+	}
+	if(autoGiallo.contains(nextStateId)){
+		d3.select('#semaforoAuto div').attr('class', 'giallo')
+		d3.select('#semaforoPedoni div').attr('class', 'rosso')
+		return
+	}
+	if(pedVerde.contains(nextStateId)) {
+		d3.select('#semaforoAuto div').attr('class', 'rosso')
+		d3.select('#semaforoPedoni div').attr('class', 'verde')
+		return
+	}
+	if(pedGiallo.contains(nextStateId)) {
+		d3.select('#semaforoAuto div').attr('class', 'rosso')
+		d3.select('#semaforoPedoni div').attr('class', 'giallo')
+		return
+	}
+})
+
+au.start();
+</script>
+</body>
+</html>

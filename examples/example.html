@@ -1,0 +1,56 @@
+<html>
+<head>
+	<title>Event Automata</title>
+	<script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+	<script src="./all.js" charset="utf-8"></script>
+	<script src="./example-model.js" charset="utf-8"></script>
+	<style type="text/css">
+.link {
+  fill: none;
+  stroke: #666;
+  stroke-width: 1.5px;
+}
+
+.node {
+  fill: #ccc;
+  stroke: #333;
+  stroke-width: 1.5px;
+}
+
+.node.active {
+	fill: #333;
+  stroke-width: 3px;
+}
+
+.label {
+  font: 10px sans-serif;
+  pointer-events: none;
+  text-shadow: 0 1px 0 #fff, 1px 0 0 #fff, 0 -1px 0 #fff, -1px 0 0 #fff;
+}
+	</style>
+</head>
+<body>
+<input type='button' id='trigger' value='Trigger'></input>
+<script type="text/javascript">
+var ed = new EventDispatcher()
+var au = new Automata(model, ed)
+var ui = new AutomataUI(d3.select('body'), au, {linkDistance: 150, linkStrength: 0.8, charge: -1000})
+
+au.on('transition', function(src, args) {
+	if(args.from != null)
+		ui.getNode(args.from.id).attr('class', 'node');
+	ui.getNode(args.to.id).attr('class', 'node active');
+})
+
+au.start();
+var triggerChangeStatus = function() {
+	ed.trigger("changeStatus");
+	setTimeout(triggerChangeStatus, 2000);
+};
+setTimeout(triggerChangeStatus, 2000)
+
+d3.select('#trigger').on('click', function() {ed.trigger('toBegin')})
+
+</script>
+</body>
+</html>
